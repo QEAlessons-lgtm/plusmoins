@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مغامرة الجمع والطرح إلى 30</title>
+<style>
+:root{
+ --site-primary:#f28b45;--site-secondary:#fff0c9;--site-background:#fffaf1;
+ --site-on-primary:#ffffff;--site-on-secondary:#633d22;--site-on-background:#27364b;
+ --site-font-body:Tahoma,Arial,sans-serif;--site-font-heading:Tahoma,Arial,sans-serif;
+ --site-heading-scale:1;--site-spacing-scale:1;--site-radius-scale:1;--site-decoration-opacity:1;
+ --ink:#26364b;--muted:#66758a;--line:#d8e8e9;--green:#26845f;--red:#c44c56;
+}
+*{box-sizing:border-box}
+body{margin:0;background:light-dark(#fffaf1,#171b24);font-family:var(--site-font-body);color:var(--ink)}
+#app{min-height:100vh;background-color:var(--site-background);color:var(--site-on-background);padding:calc(22px * var(--site-spacing-scale));border-radius:0}
+header{max-width:1100px;margin:auto;background:var(--site-primary);color:var(--site-on-primary);border-radius:26px;padding:22px;display:flex;align-items:center;justify-content:space-between;gap:18px;box-shadow:0 8px 0 #d96d2d}
+header h1{font-size:calc( clamp(1.45rem,4vw,2.5rem) * var(--site-heading-scale));margin:0 0 8px}
+header p{margin:0;line-height:1.8}
+.mascot{font-size:clamp(3rem,8vw,5rem);background:#fff6d8;border-radius:50%;padding:10px;flex-shrink:0}
+.wrap{max-width:1100px;margin:24px auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat{background:#fff;border:2px solid var(--line);border-radius:18px;padding:13px;text-align:center}
+.stat b{display:block;font-size:1.5rem;color:#e87835;margin-top:5px}
+.progress{height:10px;background:#e9e4d8;border-radius:20px;overflow:hidden;margin-top:12px}
+#bar{height:100%;width:0;background:var(--green);transition:width .3s}
+.layout{display:grid;grid-template-columns:1fr 300px;gap:18px}
+.panel{background:#fff;border:2px solid var(--line);border-radius:22px;padding:clamp(16px,3vw,25px);box-shadow:0 5px 0 #e8e2d4}
+.panel h2{font-size:1.3rem;margin:0 0 14px}
+.levels{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+button{font:inherit;cursor:pointer;border:0;border-radius:13px;padding:11px 15px;font-weight:bold;transition:transform .12s,filter .12s}
+button:hover{filter:brightness(.97);transform:translateY(-1px)}
+button:focus-visible,input:focus-visible{outline:3px solid #2967c8;outline-offset:3px}
+.level{background:#f3eee2;color:var(--ink);border:2px solid transparent}
+.level.active{background:#ffe1bd;border-color:#ef914b}
+.question-card{background:#fff9e9;border:2px dashed #efc37b;border-radius:18px;padding:20px;margin:12px 0}
+.qnum{font-size:.95rem;color:#a35a20;font-weight:bold}
+#question{font-size:clamp(1.2rem,3vw,1.65rem);line-height:1.9;margin:10px 0}
+.visual{font-size:2rem;letter-spacing:4px;min-height:45px}
+.answer-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input{width:130px;padding:12px;border:2px solid #ccd8e1;border-radius:12px;font:inherit;font-size:1.2rem;text-align:center;background:#fff;color:#26364b}
+.primary{background:var(--site-primary);color:white}
+.secondary{background:#e8f3f0;color:#176347}
+.feedback{min-height:32px;font-weight:bold;margin-top:12px}
+.feedback.good{color:var(--green)}.feedback.bad{color:var(--red)}
+.hint{color:var(--muted);line-height:1.8;font-size:.95rem}
+.side{display:flex;flex-direction:column;gap:16px}
+.tip{background:#edf8f1;border:2px solid #c8e9d6;border-radius:18px;padding:16px;line-height:1.8}
+.tip strong{color:#176347}
+.badge{display:inline-block;background:#fff0c9;color:#744519;padding:5px 10px;border-radius:20px;font-size:.85rem}
+footer{text-align:center;color:var(--muted);padding:22px 8px}
+.hidden{display:none!important}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.stats{gap:7px}.stat{padding:10px 5px}.stat b{font-size:1.25rem}header{align-items:flex-start}.mascot{font-size:2.5rem;padding:8px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+ <div><h1>🌟 مغامرة الجمع والطرح 🌟</h1><p>السنة الثانية ابتدائي • نتدرّب على الأعداد الأقل من 30</p><p style="margin-top:8px">اقرأ المسألة، فكّر، ثم اكتب الإجابة الصحيحة!</p></div>
+ <div class="mascot" aria-hidden="true">✏️</div>
+</header>
+<main class="wrap">
+ <section class="stats" aria-label="نتائج التلميذ">
+  <div class="stat">⭐ النقاط <b id="score">0</b></div>
+  <div class="stat">✅ الإجابات الصحيحة <b id="correct">0</b></div>
+  <div class="stat">🧩 المسألة <b><span id="current">1</span>/8</b><div class="progress"><div id="bar"></div></div></div>
+ </section>
+ <div class="layout">
+  <section class="panel">
+   <h2>🎯 اختر مستوى التدريب</h2>
+   <div class="levels">
+    <button class="level active" data-mode="all">كل المسائل</button>
+    <button class="level" data-mode="add">الجمع فقط +</button>
+    <button class="level" data-mode="sub">الطرح فقط −</button>
+   </div>
+   <div class="question-card">
+    <div class="qnum" id="qnum">المسألة 1</div>
+    <div id="question">جمعت مريم 14 زهرة، ثم أضافت إليها 8 أزهار أخرى. كم زهرة أصبح عند مريم؟</div>
+    <div class="visual" id="visual" aria-hidden="true">🌷 🌼 🌻</div>
+    <span class="badge" id="operation">عملية جمع</span>
+   </div>
+   <label for="answer"><strong>✍️ اكتب الإجابة:</strong></label>
+   <div class="answer-row" style="margin-top:10px">
+    <input id="answer" type="number" inputmode="numeric" min="0" max="30" placeholder="؟" aria-label="الإجابة"/>
+    <button class="primary" id="check">تحقّق من الإجابة</button>
+    <button class="secondary" id="hintBtn">💡 تلميح</button>
+   </div>
+   <div id="feedback" class="feedback" aria-live="polite"></div>
+   <div id="hint" class="hint hidden"></div>
+   <div class="answer-row" style="margin-top:14px">
+    <button class="secondary hidden" id="next">المسألة التالية ←</button>
+    <button class="level" id="restart">↻ أعد اللعب</button>
+   </div>
+  </section>
+  <aside class="side">
+   <section class="panel">
+    <h2>🧠 تذكّر</h2>
+    <div class="tip"><strong>الجمع (+)</strong><br>نضيف الأشياء إلى بعضها، فيصبح العدد أكبر.<br><span style="font-size:1.2rem">14 + 8 = 22</span></div>
+    <div class="tip" style="background:#fff1f0;border-color:#f4d0cc;margin-top:10px"><strong style="color:#a33b45">الطرح (−)</strong><br>ننقص أو نأخذ جزءًا من الأشياء، فيصبح العدد أصغر.<br><span style="font-size:1.2rem">23 − 7 = 16</span></div>
+   </section>
+   <section class="panel">
+    <h2>🏅 تشجيع الأبطال</h2>
+    <p id="encourage">ابدأ مغامرتك واجمع أولى نقاطك!</p>
+    <p class="hint">كل إجابة صحيحة تمنحك 10 نقاط. يمكنك استعمال التلميح عند الحاجة.</p>
+   </section>
+  </aside>
+ </div>
+</main>
+<footer>🌼 بالتوفيق يا أبطال! بالتفكير والمحاولة نتعلّم وننجح 🌼</footer>
+</div>
+<script>
+const questions = [
+ {type:"add",a:14,b:8,answer:22,visual:"🌷 🌼 🌻",hint:"ابدأ من 14، ثم أضف 8: 15، 16، 17، 18، 19، 20، 21، 22.",text:"جمعت مريم 14 زهرة في الحديقة، ثم أضافت إليها 8 أزهار أخرى. كم زهرة أصبح عند مريم؟"},
+ {type:"sub",a:23,b:7,answer:16,visual:"🏫 👧 👦",hint:"كان في الصف 23 تلميذًا. احذف 7 من العدد 23.",text:"كان في الصف 23 تلميذًا، وغادر منهم 7 تلاميذ. كم تلميذًا بقي في الصف؟"},
+ {type:"sub",a:26,b:9,answer:17,visual:"✏️ 🖍️ 🖊️",hint:"احسب 26 − 9. يمكنك طرح 10 ثم إضافة 1.",text:"لدى أحمد 26 قلمًا. أعطى 9 أقلام لأخيه. كم قلمًا بقي مع أحمد؟"},
+ {type:"sub",a:18,b:6,answer:12,visual:"🍎 🍎 🍎",hint:"ابدأ من 18 وارجع 6 خطوات إلى الخلف.",text:"في السلة 18 تفاحة، وأخذت أم أحمد 6 تفاحات. كم تفاحة بقيت في السلة؟"},
+ {type:"sub",a:17,b:5,answer:12,visual:"⚽ ⚽ ⚽",hint:"17 − 5 يعني أن نُنقص خمس كرات من 17.",text:"اشترى سامي 17 كرة، فأعطى صديقه 5 كرات. كم كرة بقيت عند سامي؟"},
+ {type:"sub",a:25,b:8,answer:17,visual:"🍬 🍭 🍬",hint:"25 − 8 = 25 − 5 − 3. جرّب الحساب خطوة خطوة.",text:"في الصندوق 25 قطعة حلوى، أكلت هند 8 قطع. كم قطعة بقيت في الصندوق؟"},
+ {type:"add",a:12,b:7,answer:19,visual:"📚 📘 📗",hint:"ابدأ من 12 وأضف 7 أعداد بالعدّ إلى الأمام.",text:"جمعت ليلى 12 كتابًا، ثم أضافت إليها 7 كتب أخرى. كم كتابًا أصبح عندها؟"},
+ {type:"sub",a:27,b:9,answer:18,visual:"🚆 🚉 👥",hint:"27 − 9 = 27 − 10 + 1.",text:"كان في القطار 27 مسافرًا، نزل 9 مسافرين في المحطة. كم مسافرًا بقي في القطار؟"}
+];
+let mode="all", list=[], index=0, score=0, correct=0, checked=false;
+const $=id=>document.getElementById(id);
+function setList(){list=questions.map((q,i)=>({...q,original:i})).filter(q=>mode==="all"||q.type===mode);index=0;score=0;correct=0;renderStats();renderQuestion();document.querySelectorAll(".level[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));}
+function renderStats(){$("score").textContent=score;$("correct").textContent=correct;$("current").textContent=Math.min(index+1,list.length);$("bar").style.width=(index/list.length*100)+"%";}
+function renderQuestion(){
+ checked=false;const q=list[index];$("feedback").textContent="";$("feedback").className="feedback";$("hint").classList.add("hidden");$("hint").textContent="";$("answer").value="";$("answer").disabled=false;$("check").disabled=false;$("next").classList.add("hidden");
+ if(!q){$("qnum").textContent="🎉 انتهت المغامرة!";$("question").textContent=`أحسنت! حصلت على ${score} نقطة وأجبت إجابة صحيحة عن ${correct} من ${list.length} مسائل.`;$("visual").textContent="🏆 ⭐ 🎉";$("operation").textContent="بطل الحساب";$("answer").classList.add("hidden");$("check").classList.add("hidden");$("hintBtn").classList.add("hidden");$("restart").textContent="↻ العب من جديد";$("encourage").textContent=score>=list.length*10?"رائع! أنت بطل الحساب!":"عمل جميل! أعد المحاولة لتجمع نقاطًا أكثر.";renderStats();return;}
+ $("answer").classList.remove("hidden");$("check").classList.remove("hidden");$("hintBtn").classList.remove("hidden");$("restart").textContent="↻ أعد اللعب";
+ $("qnum").textContent=`المسألة ${index+1} من ${list.length}`;$("question").textContent=q.text;$("visual").textContent=q.visual;$("operation").textContent=q.type==="add"?"عملية جمع (+)":"عملية طرح (−)";
+ $("encourage").textContent=score===0?"واصل المحاولة، أنت تستطيع!":score>=30?"ممتاز! نقاطك تتزايد!":"أحسنت، تابع التقدّم!";renderStats();$("answer").focus();
+}
+function check(){if(checked||!list[index])return;const val=$("answer").value;if(val.trim()===""){$("feedback").textContent="اكتب إجابتك أولًا يا بطل!";$("feedback").className="feedback bad";return;}checked=true;const q=list[index];if(Number(val)===q.answer){score+=10;correct++;$("feedback").textContent="🌟 أحسنت! إجابة صحيحة، ربحت 10 نقاط!";$("feedback").className="feedback good";}else{$("feedback").textContent="💪 محاولة جيدة! الإجابة الصحيحة هي "+q.answer+". جرّب المسألة التالية."; $("feedback").className="feedback bad";} $("answer").disabled=true;$("check").disabled=true;$("next").classList.remove("hidden");renderStats();$("encourage").textContent=score>=30?"أنت نجم الحساب!":"كل محاولة تعلّم جديد!";}
+$("check").addEventListener("click",check);$("answer").addEventListener("keydown",e=>{if(e.key==="Enter"){if(checked)next();else check();}});
+$("hintBtn").addEventListener("click",()=>{if(!list[index])return;$("hint").textContent="💡 "+list[index].hint;$("hint").classList.remove("hidden");});
+function next(){if(!checked)return;index++;renderQuestion();}
+$("next").addEventListener("click",next);$("restart").addEventListener("click",setList);
+document.querySelectorAll(".level[data-mode]").forEach(b=>b.addEventListener("click",()=>{mode=b.dataset.mode;setList();}));
+setList();
+</script>
+</body>
+</html>
